@@ -1,55 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Asher Yatzar Counter</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; padding: 2rem; }
-    button { font-size: 1rem; padding: .6rem 1rem; margin-top: .5rem; border-radius: 6px; }
-    #counter { font-weight: 700; margin-left: .25rem; }
-  </style>
-</head>
-<body>
-  <h1>Asher Yatzar Counter</h1>
-  <p>Count: <span id="counter">0</span></p>
-  <button id="btn">Say Asher Yatzar</button>
+  <title>Asher Yatzar Tracker</title>
+  <script type="module">
+    // Import the Firebase SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
-  <!-- Firebase compat SDK (works with the namespaced API used below) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
-  <script>
+    // Your Firebase config (use your own values)
     const firebaseConfig = {
-      apiKey: "AIzaSyA2Bl8pQyqjkaMyJN_L7_yT81Mbrx_3UDg",
-      authDomain: "asher-yatzar-counter-ac4de.firebaseapp.com",
-      databaseURL: "https://asher-yatzar-counter-ac4de-default-rtdb.firebaseio.com", 
-      projectId: "asher-yatzar-counter-ac4de",
-      storageBucket: "asher-yatzar-counter-ac4de.firebasestorage.app",
-      messagingSenderId: "47324425541",
-      appId: "1:47324425541:web:342fa2076decf1e59de22c",
-      measurementId: "G-Z4VL7P2GM1"
+      apiKey: "AIzaSyDwOAEFociXBg8cPTFj1O2qSsnfC6pw9hU",
+      authDomain: "asher-yatzar-tracker-2.firebaseapp.com",
+      databaseURL: "https://asher-yatzar-tracker-2-default-rtdb.firebaseio.com",
+      projectId: "asher-yatzar-tracker-2",
+      storageBucket: "asher-yatzar-tracker-2.firebasestorage.app",
+      messagingSenderId: "939305146617",
+      appId: "1:939305146617:web:abd65c1c2e02d9048d6a28",
+      measurementId: "G-P3NLW49V8X"
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const counterRef = db.ref('counter');
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    // Display the live counter
-    counterRef.on('value', snapshot => {
-      const v = snapshot.val();
-      document.getElementById('counter').innerText = (v === null ? 0 : v);
-    }, (err) => {
-      console.error('DB read error:', err);
+    // Reference to your shared variable in the database
+    const sharedValueRef = ref(db, 'sharedValue');
+
+    // Grab elements from the page
+    const display = document.getElementById('display');
+    const button = document.getElementById('button');
+
+    // 🔁 Listen for realtime updates from Firebase
+
+    onValue(sharedValueRef, (snapshot) => {
+      const val = snapshot.val();
+      display.textContent = val ?? '(no value yet)';
     });
 
-    // Increment safely using a transaction
-    const btn = document.getElementById('btn');
-    btn.addEventListener('click', () => {
-      btn.disabled = true; // prevent double clicks
-      counterRef.transaction(current => (current || 0) + 1)
-        .finally(() => { btn.disabled = false; });
+    // ✏️ Update the shared value when user clicks the button
+    button.addEventListener('click', async () => {
+	const snapshot = await get(sharedValueRef);
+	const currentValue = Number(snapshot.val()) || 0;
+        const newValue = currentValue + 1;
+	set(sharedValueRef, newValue);
     });
   </script>
+</head>
+<body style="font-family:sans-serif; text-align:center; margin-top:5em;">
+  <h1>Asher Yatzar Tracker</h1>
+  <h2 id="display">(loading...)</h2>
+  <button id="button">+1 Asher Yatzar</button>
 </body>
 </html>
